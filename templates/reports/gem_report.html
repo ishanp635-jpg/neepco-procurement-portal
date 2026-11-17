@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}GeM Procurement Report | NEEPCO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="bi bi-cart-check text-info"></i> Government e-Marketplace (GeM) Report
+        </h2>
+        <p class="page-subtitle">Statutory report on contracts and purchases conducted through the GeM portal</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('report_gem_csv', status=status, from_date=from_date, to_date=to_date) }}" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+        </a>
+        <a href="{{ url_for('reports_index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> All Reports
+        </a>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card-enterprise mb-4">
+    <div class="card-body py-3">
+        <form method="GET" action="{{ url_for('report_gem') }}" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">Order Status</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">-- All Statuses --</option>
+                    <option value="Placed" {% if status == 'Placed' %}selected{% endif %}>Placed</option>
+                    <option value="In Progress" {% if status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Delivered" {% if status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                    <option value="Completed" {% if status == 'Completed' %}selected{% endif %}>Completed</option>
+                    <option value="Cancelled" {% if status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">From Date</label>
+                <input type="date" name="from_date" class="form-control form-control-sm" value="{{ from_date }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">To Date</label>
+                <input type="date" name="to_date" class="form-control form-control-sm" value="{{ to_date }}">
+            </div>
+            <div class="col-md-3 d-flex align-items-end gap-2 pt-3">
+                <button type="submit" class="btn btn-neepco btn-sm flex-grow-1">
+                    <i class="bi bi-funnel"></i> Apply Filter
+                </button>
+                {% if status or from_date or to_date %}
+                    <a href="{{ url_for('report_gem') }}" class="btn btn-outline-secondary btn-sm" title="Reset">
+                        <i class="bi bi-x-circle"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Report Table -->
+<div class="card-enterprise">
+    <div class="card-header">
+        <h5 class="card-title"><i class="bi bi-table"></i> GeM Procurement Ledger</h5>
+        <div class="fw-bold text-info">
+            Total GeM Value: {{ total_amount | inr }}
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-portal mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>GeM Order ID</th>
+                    <th>Vendor Name</th>
+                    <th>Vendor Code</th>
+                    <th>Product / Catalog Description</th>
+                    <th>Order Date</th>
+                    <th>Status</th>
+                    <th class="text-end">Order Amount (INR)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                <tr>
+                    <td><strong class="text-primary font-monospace">{{ r.gem_order_id }}</strong></td>
+                    <td class="fw-semibold text-dark">{{ r.vendor_name }}</td>
+                    <td><code>{{ r.ven_code }}</code></td>
+                    <td style="max-width: 280px;">{{ r.product_description }}</td>
+                    <td class="text-nowrap">{{ r.order_date }}</td>
+                    <td>
+                        {% if r.order_status == 'Completed' %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-all"></i> Completed</span>
+                        {% elif r.order_status == 'Delivered' %}
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle"><i class="bi bi-truck"></i> Delivered</span>
+                        {% elif r.order_status == 'In Progress' %}
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle"><i class="bi bi-gear-wide-connected"></i> In Progress</span>
+                        {% elif r.order_status == 'Placed' %}
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle"><i class="bi bi-receipt"></i> Placed</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">{{ r.order_status }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end fw-bold">{{ r.order_amount | inr }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">No GeM procurement records found for the selected criteria.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% if records %}
+            <tfoot>
+                <tr>
+                    <td colspan="6" class="text-end fw-bold">TOTAL GeM ORDERS VALUE:</td>
+                    <td class="text-end fw-bold text-info fs-6">{{ total_amount | inr }}</td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Procurement Portal | NEEPCO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="bi bi-box-seam text-primary"></i> Procurement Portal
+        </h2>
+        <p class="page-subtitle">Manage purchase orders, contract allocations, and procurement packages</p>
+    </div>
+    <div>
+        <a href="{{ url_for('procurement_add') }}" class="btn btn-neepco shadow-sm">
+            <i class="bi bi-plus-circle"></i> Add Procurement Record
+        </a>
+    </div>
+</div>
+
+<!-- Search & Filter Card -->
+<div class="card-enterprise mb-4">
+    <div class="card-body py-3">
+        <form method="GET" action="{{ url_for('procurement_list') }}" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control" placeholder="Search by Proc ID, PO #, Vendor, or Description..." value="{{ search_q }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="fy" class="form-select">
+                    <option value="">-- All Financial Years --</option>
+                    {% for fy in fys %}
+                        <option value="{{ fy }}" {% if selected_fy == fy %}selected{% endif %}>FY {{ fy }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-neepco flex-grow-1">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
+                {% if search_q or selected_fy %}
+                    <a href="{{ url_for('procurement_list') }}" class="btn btn-outline-secondary" title="Clear Filters">
+                        <i class="bi bi-x-circle"></i> Reset
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('report_procurement_csv', fy=selected_fy) }}" class="btn btn-outline-success" title="Export as CSV">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> CSV
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Procurement Data Table -->
+<div class="card-enterprise">
+    <div class="card-header">
+        <div class="d-flex align-items-center gap-2">
+            <h5 class="card-title"><i class="bi bi-table"></i> Procurement Records</h5>
+            <span class="badge bg-secondary">{{ records | length }} Records Found</span>
+        </div>
+        <div class="fw-bold text-primary">
+            Total Value: {{ total_procurement_value | inr }}
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-portal mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Procurement ID</th>
+                    <th>Vendor Name</th>
+                    <th>PO Number</th>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Financial Year</th>
+                    <th class="text-end">Amount (INR)</th>
+                    <th class="text-center" style="width: 100px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                <tr>
+                    <td>
+                        <strong class="text-primary">{{ r.procurement_id }}</strong>
+                    </td>
+                    <td>
+                        <div class="fw-semibold text-dark">{{ r.vendor_name }}</div>
+                        <small class="text-muted">{{ r.ven_code }}</small>
+                    </td>
+                    <td><code>{{ r.purchase_order_number }}</code></td>
+                    <td class="text-nowrap">{{ r.date }}</td>
+                    <td style="max-width: 250px;">
+                        <span class="text-truncate d-block" title="{{ r.description }}">{{ r.description }}</span>
+                    </td>
+                    <td>
+                        <span class="badge badge-status badge-type-{{ r.procurement_type | lower }}">
+                            {{ r.procurement_type }}
+                        </span>
+                    </td>
+                    <td><span class="badge bg-light text-dark border">{{ r.financial_year }}</span></td>
+                    <td class="text-end fw-bold">{{ r.procurement_amount | inr }}</td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-1">
+                            <a href="{{ url_for('procurement_edit', id=r.id) }}" class="btn btn-action-icon" title="Edit Record">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('procurement_delete', id=r.id) }}" onsubmit="return confirm('Are you sure you want to delete procurement record {{ r.procurement_id }}?');" class="d-inline">
+                                <button type="submit" class="btn btn-action-icon btn-action-delete" title="Delete Record">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9" class="text-center py-4 text-muted">
+                        <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                        No procurement records found matching your filter criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% if records %}
+            <tfoot>
+                <tr>
+                    <td colspan="7" class="text-end fw-bold">TOTAL PROCUREMENT VALUE:</td>
+                    <td class="text-end fw-bold text-primary fs-6">{{ total_procurement_value | inr }}</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

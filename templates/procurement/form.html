@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Procurement Record | NEEPCO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="bi bi-box-seam text-primary"></i> {% if is_edit %}Edit{% else %}New{% endif %} Procurement Record
+        </h2>
+        <p class="page-subtitle">Enter purchase order specifications and vendor contract allocation details</p>
+    </div>
+    <div>
+        <a href="{{ url_for('procurement_list') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Procurement Portal
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card-enterprise">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="bi bi-file-earmark-text"></i> Procurement Details Form
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="row g-3">
+                        <!-- Procurement ID -->
+                        <div class="col-md-6">
+                            <label for="procurement_id" class="form-label fw-semibold small text-secondary">
+                                Procurement ID <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="procurement_id" name="procurement_id" 
+                                   value="{{ form_data.procurement_id or '' }}" 
+                                   placeholder="e.g. PROC-2024-006" 
+                                   {% if is_edit %}readonly class="form-control bg-light"{% endif %} required>
+                            <div class="form-text small">Unique reference code for this procurement tender.</div>
+                        </div>
+
+                        <!-- Vendor Dropdown (connected to Vendors table) -->
+                        <div class="col-md-6">
+                            <label for="vendor_id" class="form-label fw-semibold small text-secondary">
+                                Vendor Name <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="vendor_id" name="vendor_id" required>
+                                <option value="">-- Select Registered Vendor --</option>
+                                {% for v in vendors %}
+                                    <option value="{{ v.id }}" {% if (form_data.vendor_id|string) == (v.id|string) %}selected{% endif %}>
+                                        {{ v.vendor_name }} ({{ v.vendor_id }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text small">Vendor must be onboarded in Vendor Management.</div>
+                        </div>
+
+                        <!-- Purchase Order Number -->
+                        <div class="col-md-6">
+                            <label for="purchase_order_number" class="form-label fw-semibold small text-secondary">
+                                Purchase Order Number <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="purchase_order_number" name="purchase_order_number" 
+                                   value="{{ form_data.purchase_order_number or '' }}" 
+                                   placeholder="e.g. PO/NEEPCO/2024/182" required>
+                        </div>
+
+                        <!-- Date -->
+                        <div class="col-md-6">
+                            <label for="date" class="form-label fw-semibold small text-secondary">
+                                Procurement Date <span class="text-danger">*</span>
+                            </label>
+                            <input type="date" class="form-control" id="date" name="date" 
+                                   value="{{ form_data.date or '' }}" required>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label for="description" class="form-label fw-semibold small text-secondary">
+                                Description / Scope of Work <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control" id="description" name="description" rows="3" 
+                                      placeholder="Detailed description of goods supplied or engineering services contracted..." required>{{ form_data.description or '' }}</textarea>
+                        </div>
+
+                        <!-- Procurement Amount -->
+                        <div class="col-md-4">
+                            <label for="procurement_amount" class="form-label fw-semibold small text-secondary">
+                                Procurement Amount (INR) <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" step="0.01" min="0" class="form-control" id="procurement_amount" name="procurement_amount" 
+                                       value="{{ form_data.procurement_amount or '' }}" placeholder="0.00" required>
+                            </div>
+                        </div>
+
+                        <!-- Procurement Type -->
+                        <div class="col-md-4">
+                            <label for="procurement_type" class="form-label fw-semibold small text-secondary">
+                                Procurement Type <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="procurement_type" name="procurement_type" required>
+                                <option value="Goods" {% if form_data.procurement_type == 'Goods' %}selected{% endif %}>Goods</option>
+                                <option value="Works" {% if form_data.procurement_type == 'Works' %}selected{% endif %}>Works</option>
+                                <option value="Services" {% if form_data.procurement_type == 'Services' %}selected{% endif %}>Services</option>
+                                <option value="Consultancy" {% if form_data.procurement_type == 'Consultancy' %}selected{% endif %}>Consultancy</option>
+                            </select>
+                        </div>
+
+                        <!-- Financial Year -->
+                        <div class="col-md-4">
+                            <label for="financial_year" class="form-label fw-semibold small text-secondary">
+                                Financial Year <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="financial_year" name="financial_year" required>
+                                <option value="2025-26" {% if form_data.financial_year == '2025-26' %}selected{% endif %}>2025-26</option>
+                                <option value="2024-25" {% if form_data.financial_year == '2024-25' or not form_data.financial_year %}selected{% endif %}>2024-25</option>
+                                <option value="2023-24" {% if form_data.financial_year == '2023-24' %}selected{% endif %}>2023-24</option>
+                                <option value="2022-23" {% if form_data.financial_year == '2022-23' %}selected{% endif %}>2022-23</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top d-flex gap-2 justify-content-end">
+                        <a href="{{ url_for('procurement_list') }}" class="btn btn-outline-secondary px-4">Cancel</a>
+                        <button type="submit" class="btn btn-neepco px-4">
+                            <i class="bi bi-check-circle"></i> {% if is_edit %}Update Record{% else %}Save Procurement Record{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

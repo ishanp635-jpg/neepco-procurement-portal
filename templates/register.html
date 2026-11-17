@@ -1,0 +1,68 @@
+{% extends "auth_base.html" %}
+
+{% block title %}Personnel Registration | NEEPCO Data Portal{% endblock %}
+
+{% block content %}
+<div class="mb-3 text-center">
+    <h3 class="h5 fw-bold text-dark">Register Account</h3>
+    <p class="text-muted small">Create an authorized nodal user account</p>
+</div>
+
+<form method="POST" action="{{ url_for('register') }}" id="registerForm">
+    <div class="mb-3">
+        <label for="full_name" class="form-label small fw-semibold text-secondary">Full Name</label>
+        <div class="input-group">
+            <span class="input-group-text bg-light text-muted"><i class="bi bi-person-badge"></i></span>
+            <input type="text" class="form-control" id="full_name" name="full_name" value="{{ full_name or '' }}" placeholder="e.g. Ramesh Chandra Sharma" required autofocus>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="email" class="form-label small fw-semibold text-secondary">Official Email Address</label>
+        <div class="input-group">
+            <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
+            <input type="email" class="form-control" id="email" name="email" value="{{ email or '' }}" placeholder="officer@neepco.gov.in" required>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="username" class="form-label small fw-semibold text-secondary">Username</label>
+        <div class="input-group">
+            <span class="input-group-text bg-light text-muted"><i class="bi bi-at"></i></span>
+            <input type="text" class="form-control" id="username" name="username" value="{{ username or '' }}" placeholder="Choose a username" required>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label for="password" class="form-label small fw-semibold text-secondary">Password</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light text-muted"><i class="bi bi-lock"></i></span>
+                <input type="password" class="form-control" id="password" name="password" placeholder="At least 6 chars" required minlength="6">
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label for="confirm_password" class="form-label small fw-semibold text-secondary">Confirm Password</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light text-muted"><i class="bi bi-lock-fill"></i></span>
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Re-enter password" required minlength="6">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-text small text-muted mb-4">
+        <i class="bi bi-shield-check text-success me-1"></i> Passwords are encrypted using secure Werkzeug cryptographic hashing.
+    </div>
+
+    <button type="submit" class="btn btn-neepco w-100 py-2 justify-content-center shadow-sm">
+        <i class="bi bi-person-plus-fill"></i> Register User Account
+    </button>
+</form>
+
+<div class="text-center mt-4 pt-2 border-top">
+    <p class="small text-muted mb-0">
+        Already registered? <a href="{{ url_for('login') }}" class="text-primary fw-semibold text-decoration-none">Sign In Here</a>
+    </p>
+</div>
+{% endblock %}

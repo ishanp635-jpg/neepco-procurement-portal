@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Vendor Payment Report - NEEPCO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1 small">
+                <li class="breadcrumb-item"><a href="{{ url_for('reports_hub') }}">Reports</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Vendor Payment Report</li>
+            </ol>
+        </nav>
+        <h2 class="page-title">
+            <i class="bi bi-cash-stack text-success"></i> Vendor Payment & Liabilities Audit Report
+        </h2>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('report_payments_export', status=selected_status, start_date=start_date, end_date=end_date) }}" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export to CSV
+        </a>
+        <button class="btn btn-outline-secondary" onclick="window.print()">
+            <i class="bi bi-printer me-1"></i> Print
+        </button>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar">
+    <form method="GET" action="{{ url_for('report_payments_view') }}" class="row g-2 w-100 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small mb-1">Payment Status</label>
+            <select name="status" class="form-select form-select-sm">
+                <option value="">All Statuses</option>
+                {% for st in ['Paid', 'Partially Paid', 'Pending'] %}
+                <option value="{{ st }}" {% if selected_status == st %}selected{% endif %}>{{ st }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small mb-1">From Date</label>
+            <input type="date" name="start_date" class="form-control form-select-sm" value="{{ start_date }}">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small mb-1">To Date</label>
+            <input type="date" name="end_date" class="form-control form-select-sm" value="{{ end_date }}">
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-sm btn-psu flex-grow-1">Apply Filter</button>
+            <a href="{{ url_for('report_payments_view') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- Liability Summary -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card py-2 px-3">
+            <div class="stat-content m-0">
+                <span class="stat-label">Total Invoiced Amount</span>
+                <h4 class="stat-value text-dark fs-5 mb-0">₹ {{ "{:,.2f}".format(total_invoiced) }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card py-2 px-3">
+            <div class="stat-content m-0">
+                <span class="stat-label">Total Amount Disbursed</span>
+                <h4 class="stat-value text-success fs-5 mb-0">₹ {{ "{:,.2f}".format(total_paid) }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card py-2 px-3">
+            <div class="stat-content m-0">
+                <span class="stat-label">Net Outstanding Liability</span>
+                <h4 class="stat-value text-danger fs-5 mb-0">₹ {{ "{:,.2f}".format(total_outstanding) }}</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Table -->
+<div class="custom-card">
+    <div class="custom-card-header">
+        <div class="card-header-title">
+            <i class="bi bi-file-text text-primary"></i> Vendor Invoices and Disbursements
+        </div>
+        <span class="badge bg-light text-secondary border">Total Invoices: {{ records|length }}</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-custom align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Invoice Number</th>
+                    <th>Vendor Name</th>
+                    <th>Payment Date</th>
+                    <th class="text-end">Invoice Amount (₹)</th>
+                    <th class="text-end">Amount Paid (₹)</th>
+                    <th class="text-end">Outstanding (₹)</th>
+                    <th class="text-center">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                {% set out = r['invoice_amount'] - r['amount_paid'] %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td class="fw-bold font-monospace text-primary">{{ r['invoice_number'] }}</td>
+                    <td>{{ r['vendor_name'] }}</td>
+                    <td>{{ r['payment_date'] }}</td>
+                    <td class="text-end fw-semibold">₹ {{ "{:,.2f}".format(r['invoice_amount']) }}</td>
+                    <td class="text-end text-success fw-bold">₹ {{ "{:,.2f}".format(r['amount_paid']) }}</td>
+                    <td class="text-end fw-bold {% if out > 0 %}text-danger{% else %}text-muted{% endif %}">
+                        ₹ {{ "{:,.2f}".format(out if out > 0 else 0) }}
+                    </td>
+                    <td class="text-center">
+                        {% if r['payment_status'] == 'Paid' %}
+                        <span class="badge badge-status badge-paid">Paid</span>
+                        {% elif r['payment_status'] == 'Partially Paid' %}
+                        <span class="badge badge-status badge-partial">Partially Paid</span>
+                        {% else %}
+                        <span class="badge badge-status badge-pending">Pending</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">No invoices found for the specified filters.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% if records %}
+            <tfoot>
+                <tr class="table-light fw-bold">
+                    <td colspan="4" class="text-end">Totals:</td>
+                    <td class="text-end text-dark">₹ {{ "{:,.2f}".format(total_invoiced) }}</td>
+                    <td class="text-end text-success">₹ {{ "{:,.2f}".format(total_paid) }}</td>
+                    <td class="text-end text-danger">₹ {{ "{:,.2f}".format(total_outstanding) }}</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

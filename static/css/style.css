@@ -1,0 +1,602 @@
+/*
+ * NEEPCO Procurement and Vendor Payment Data Portal
+ * Custom Enterprise Theme Stylesheet
+ */
+
+:root {
+    --neepco-navy-dark: #07192f;
+    --neepco-navy: #0b2545;
+    --neepco-navy-light: #13315c;
+    --neepco-blue-accent: #1976d2;
+    --neepco-gold: #c59b27;
+    --neepco-gold-light: #e6b94d;
+    --neepco-bg: #f4f6fa;
+    --neepco-card-bg: #ffffff;
+    --neepco-text-dark: #1e293b;
+    --neepco-text-muted: #64748b;
+    --neepco-border: #e2e8f0;
+    --sidebar-width: 270px;
+    --navbar-height: 64px;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--neepco-bg);
+    color: var(--neepco-text-dark);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* ----------------------------------------------------
+   Sidebar Navigation
+---------------------------------------------------- */
+.app-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    background: linear-gradient(180deg, var(--neepco-navy-dark) 0%, var(--neepco-navy) 100%);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1030;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.sidebar-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-brand-badge {
+    background-color: var(--neepco-gold);
+    color: var(--neepco-navy-dark);
+    font-weight: 800;
+    font-size: 1.15rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-brand-text {
+    line-height: 1.2;
+}
+
+.sidebar-brand-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+    margin: 0;
+}
+
+.sidebar-brand-sub {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.sidebar-nav {
+    list-style: none;
+    padding: 1rem 0.75rem;
+    margin: 0;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.sidebar-nav .nav-category {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    padding: 0.6rem 1rem 0.25rem 1rem;
+    letter-spacing: 1px;
+}
+
+.sidebar-nav .nav-item {
+    margin-bottom: 0.25rem;
+}
+
+.sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.65rem 1rem;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+    gap: 0.85rem;
+}
+
+.sidebar-nav .nav-link i {
+    font-size: 1.15rem;
+    color: #94a3b8;
+    transition: color 0.2s ease;
+}
+
+.sidebar-nav .nav-link:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-nav .nav-link:hover i {
+    color: var(--neepco-gold-light);
+}
+
+.sidebar-nav .nav-link.active {
+    color: #ffffff;
+    background: var(--neepco-navy-light);
+    border-left: 4px solid var(--neepco-gold);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-nav .nav-link.active i {
+    color: var(--neepco-gold);
+}
+
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* ----------------------------------------------------
+   Main Content Layout
+---------------------------------------------------- */
+.main-content {
+    flex-grow: 1;
+    margin-left: var(--sidebar-width);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--neepco-bg);
+}
+
+/* ----------------------------------------------------
+   Top Navbar
+---------------------------------------------------- */
+.top-navbar {
+    height: var(--navbar-height);
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--neepco-border);
+    padding: 0 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.navbar-portal-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.portal-tag {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid #bae6fd;
+}
+
+.top-navbar .navbar-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--neepco-navy);
+    margin: 0;
+}
+
+.top-navbar .user-profile-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    background-color: var(--neepco-navy);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+/* ----------------------------------------------------
+   Page Body
+---------------------------------------------------- */
+.page-container {
+    padding: 1.75rem;
+    flex-grow: 1;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.page-title {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--neepco-navy);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.page-subtitle {
+    font-size: 0.85rem;
+    color: var(--neepco-text-muted);
+    margin: 0.2rem 0 0 0;
+}
+
+/* ----------------------------------------------------
+   Statistic & KPI Cards
+---------------------------------------------------- */
+.kpi-card {
+    background-color: var(--neepco-card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--neepco-border);
+    padding: 1.35rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.kpi-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+}
+
+.kpi-card.primary::before { background-color: #1976d2; }
+.kpi-card.success::before { background-color: #10b981; }
+.kpi-card.info::before { background-color: #06b6d4; }
+.kpi-card.warning::before { background-color: #f59e0b; }
+.kpi-card.danger::before { background-color: #ef4444; }
+.kpi-card.dark::before { background-color: #0b2545; }
+
+.kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.kpi-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--neepco-text-muted);
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.kpi-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+}
+
+.kpi-icon.primary { background-color: #e0f2fe; color: #0284c7; }
+.kpi-icon.success { background-color: #d1fae5; color: #059669; }
+.kpi-icon.info { background-color: #cffafe; color: #0891b2; }
+.kpi-icon.warning { background-color: #fef3c7; color: #d97706; }
+.kpi-icon.danger { background-color: #fee2e2; color: #dc2626; }
+.kpi-icon.dark { background-color: #e2e8f0; color: #0b2545; }
+
+.kpi-value {
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--neepco-navy);
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.kpi-sub {
+    font-size: 0.78rem;
+    color: var(--neepco-text-muted);
+    margin-top: 0.35rem;
+    margin-bottom: 0;
+}
+
+/* ----------------------------------------------------
+   Content Cards & Tables
+---------------------------------------------------- */
+.card-enterprise {
+    background-color: var(--neepco-card-bg);
+    border: 1px solid var(--neepco-border);
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.card-enterprise .card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--neepco-border);
+    padding: 1rem 1.35rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.card-enterprise .card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--neepco-navy);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-enterprise .card-body {
+    padding: 1.35rem;
+}
+
+/* Custom Table Styling */
+.table-portal {
+    width: 100%;
+    margin-bottom: 0;
+    color: var(--neepco-text-dark);
+    vertical-align: middle;
+}
+
+.table-portal thead th {
+    background-color: #f8fafc;
+    color: var(--neepco-navy);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.85rem 1rem;
+    border-bottom: 2px solid var(--neepco-border);
+    white-space: nowrap;
+}
+
+.table-portal tbody td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--neepco-border);
+    font-size: 0.9rem;
+}
+
+.table-portal tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.table-portal tfoot td {
+    background-color: #f1f5f9;
+    font-weight: 700;
+    padding: 0.85rem 1rem;
+    border-top: 2px solid var(--neepco-navy);
+    font-size: 0.95rem;
+}
+
+/* ----------------------------------------------------
+   Badges & Indicators
+---------------------------------------------------- */
+.badge-status {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.badge-paid { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.badge-partial { background-color: #fef9c3; color: #a16207; border: 1px solid #fef08a; }
+.badge-pending { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+.badge-type-goods { background-color: #e0e7ff; color: #4338ca; }
+.badge-type-works { background-color: #fef3c7; color: #b45309; }
+.badge-type-services { background-color: #e0f2fe; color: #0369a1; }
+.badge-type-consultancy { background-color: #f3e8ff; color: #7e22ce; }
+
+.badge-mse-yes { background-color: #d1fae5; color: #065f46; font-weight: 700; }
+.badge-mse-no { background-color: #f1f5f9; color: #475569; }
+
+/* ----------------------------------------------------
+   Buttons & Actions
+---------------------------------------------------- */
+.btn-neepco {
+    background-color: var(--neepco-navy);
+    color: #ffffff;
+    font-weight: 600;
+    border: none;
+    padding: 0.5rem 1.15rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: background 0.2s ease;
+}
+
+.btn-neepco:hover {
+    background-color: var(--neepco-navy-light);
+    color: #ffffff;
+}
+
+.btn-neepco-outline {
+    background-color: transparent;
+    color: var(--neepco-navy);
+    border: 1px solid var(--neepco-navy);
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 0.45rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s ease;
+}
+
+.btn-neepco-outline:hover {
+    background-color: var(--neepco-navy);
+    color: #ffffff;
+}
+
+.btn-action-icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1px solid var(--neepco-border);
+    background-color: #ffffff;
+    color: var(--neepco-text-muted);
+    transition: all 0.2s ease;
+}
+
+.btn-action-icon:hover {
+    background-color: #f1f5f9;
+    color: var(--neepco-navy);
+    border-color: #cbd5e1;
+}
+
+.btn-action-delete:hover {
+    background-color: #fee2e2;
+    color: #dc2626;
+    border-color: #fca5a5;
+}
+
+/* ----------------------------------------------------
+   Authentication Layout Styles
+---------------------------------------------------- */
+.auth-body {
+    background: radial-gradient(circle at 50% 20%, #102a4e 0%, var(--neepco-navy-dark) 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.auth-card {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    width: 100%;
+    max-width: 480px;
+    overflow: hidden;
+}
+
+.auth-header {
+    background: linear-gradient(135deg, var(--neepco-navy-dark) 0%, var(--neepco-navy) 100%);
+    color: #ffffff;
+    padding: 2rem 1.75rem 1.75rem 1.75rem;
+    text-align: center;
+    border-bottom: 3px solid var(--neepco-gold);
+}
+
+.auth-logo-badge {
+    display: inline-block;
+    background-color: var(--neepco-gold);
+    color: var(--neepco-navy-dark);
+    font-weight: 800;
+    font-size: 1.4rem;
+    padding: 0.4rem 1.1rem;
+    border-radius: 8px;
+    letter-spacing: 1px;
+    margin-bottom: 0.75rem;
+}
+
+.auth-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 0.3px;
+}
+
+.auth-subtitle {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+    margin-top: 0.35rem;
+    margin-bottom: 0;
+}
+
+.auth-body-content {
+    padding: 2rem 2.25rem;
+}
+
+/* ----------------------------------------------------
+   Footer
+---------------------------------------------------- */
+.app-footer {
+    background-color: #ffffff;
+    border-top: 1px solid var(--neepco-border);
+    padding: 1rem 1.75rem;
+    font-size: 0.8rem;
+    color: var(--neepco-text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* ----------------------------------------------------
+   Responsive Adjustments
+---------------------------------------------------- */
+@media (max-width: 991.98px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    .main-content {
+        margin-left: 0;
+    }
+}

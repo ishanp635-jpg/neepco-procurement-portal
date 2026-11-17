@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Vendor Payment Portal | NEEPCO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="bi bi-credit-card text-primary"></i> Vendor Payment Portal
+        </h2>
+        <p class="page-subtitle">Track invoice receipts, disbursements, pending liabilities, and payment settlements</p>
+    </div>
+    <div>
+        <a href="{{ url_for('payment_add') }}" class="btn btn-neepco shadow-sm">
+            <i class="bi bi-plus-circle"></i> Record New Payment
+        </a>
+    </div>
+</div>
+
+<!-- Financial Summary KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="kpi-card dark">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">Total Invoiced Amount</h6>
+                    <div class="kpi-value">{{ total_invoice_amount | inr }}</div>
+                </div>
+                <div class="kpi-icon dark">
+                    <i class="bi bi-receipt-cutoff"></i>
+                </div>
+            </div>
+            <p class="kpi-sub">Total billed invoices across vendors</p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="kpi-card success">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">Total Amount Disbursed</h6>
+                    <div class="kpi-value text-success">{{ total_amount_paid | inr }}</div>
+                </div>
+                <div class="kpi-icon success">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+            </div>
+            <p class="kpi-sub">Total payments released through treasury</p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="kpi-card danger">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">Outstanding / Pending Balance</h6>
+                    <div class="kpi-value text-danger">{{ total_outstanding | inr }}</div>
+                </div>
+                <div class="kpi-icon danger">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+            </div>
+            <p class="kpi-sub">Formula: Total Invoiced &minus; Total Paid</p>
+        </div>
+    </div>
+</div>
+
+<!-- Search & Status Filter -->
+<div class="card-enterprise mb-4">
+    <div class="card-body py-3">
+        <form method="GET" action="{{ url_for('payment_list') }}" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control" placeholder="Search by Invoice # or Vendor Name..." value="{{ search_q }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">-- All Payment Statuses --</option>
+                    <option value="Paid" {% if status_filter == 'Paid' %}selected{% endif %}>Paid</option>
+                    <option value="Partially Paid" {% if status_filter == 'Partially Paid' %}selected{% endif %}>Partially Paid</option>
+                    <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                </select>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-neepco flex-grow-1">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
+                {% if search_q or status_filter %}
+                    <a href="{{ url_for('payment_list') }}" class="btn btn-outline-secondary" title="Clear Filters">
+                        <i class="bi bi-x-circle"></i> Reset
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('report_payments_csv', status=status_filter) }}" class="btn btn-outline-success" title="Export as CSV">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> CSV
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Payments Table -->
+<div class="card-enterprise">
+    <div class="card-header">
+        <div class="d-flex align-items-center gap-2">
+            <h5 class="card-title"><i class="bi bi-table"></i> Vendor Payment Ledger</h5>
+            <span class="badge bg-secondary">{{ records | length }} Invoices</span>
+        </div>
+        <div class="fw-bold">
+            <span class="text-success me-3">Paid: {{ total_amount_paid | inr }}</span>
+            <span class="text-danger">Outstanding: {{ total_outstanding | inr }}</span>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-portal mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Invoice Number</th>
+                    <th>Vendor Name</th>
+                    <th>Payment Date</th>
+                    <th class="text-end">Invoice Amount</th>
+                    <th class="text-end">Amount Paid</th>
+                    <th class="text-end">Outstanding Amount</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center" style="width: 100px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                {% set outstanding = [0.0, r.invoice_amount - r.amount_paid] | max %}
+                <tr>
+                    <td>
+                        <strong class="text-dark font-monospace">{{ r.invoice_number }}</strong>
+                    </td>
+                    <td>
+                        <div class="fw-semibold text-dark">{{ r.vendor_name }}</div>
+                        <small class="text-muted">{{ r.ven_code }}</small>
+                    </td>
+                    <td class="text-nowrap">{{ r.payment_date }}</td>
+                    <td class="text-end fw-semibold">{{ r.invoice_amount | inr }}</td>
+                    <td class="text-end fw-bold text-success">{{ r.amount_paid | inr }}</td>
+                    <td class="text-end fw-bold {% if outstanding > 0 %}text-danger{% else %}text-muted{% endif %}">
+                        {{ outstanding | inr }}
+                    </td>
+                    <td class="text-center">
+                        {% if r.payment_status == 'Paid' %}
+                            <span class="badge badge-status badge-paid">
+                                <i class="bi bi-check2-circle"></i> Paid
+                            </span>
+                        {% elif r.payment_status == 'Partially Paid' %}
+                            <span class="badge badge-status badge-partial">
+                                <i class="bi bi-hourglass-split"></i> Partially Paid
+                            </span>
+                        {% else %}
+                            <span class="badge badge-status badge-pending">
+                                <i class="bi bi-exclamation-circle"></i> Pending
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-1">
+                            <a href="{{ url_for('payment_edit', id=r.id) }}" class="btn btn-action-icon" title="Edit Payment">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('payment_delete', id=r.id) }}" onsubmit="return confirm('Delete payment record for invoice {{ r.invoice_number }}?');" class="d-inline">
+                                <button type="submit" class="btn btn-action-icon btn-action-delete" title="Delete Payment">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">
+                        <i class="bi bi-credit-card-2-front fs-2 d-block mb-2 text-secondary"></i>
+                        No payment records found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% if records %}
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-end fw-bold">TOTALS:</td>
+                    <td class="text-end fw-bold text-dark fs-6">{{ total_invoice_amount | inr }}</td>
+                    <td class="text-end fw-bold text-success fs-6">{{ total_amount_paid | inr }}</td>
+                    <td class="text-end fw-bold text-danger fs-6">{{ total_outstanding | inr }}</td>
+                    <td colspan="2"></td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

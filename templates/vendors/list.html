@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Vendor Management | NEEPCO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="bi bi-people text-primary"></i> Vendor Management Module
+        </h2>
+        <p class="page-subtitle">Directory of registered suppliers, contractors, and MSME partners</p>
+    </div>
+    <div>
+        <a href="{{ url_for('vendor_add') }}" class="btn btn-neepco shadow-sm">
+            <i class="bi bi-person-plus-fill"></i> Add New Vendor
+        </a>
+    </div>
+</div>
+
+<!-- Search Card -->
+<div class="card-enterprise mb-4">
+    <div class="card-body py-3">
+        <form method="GET" action="{{ url_for('vendor_list') }}" class="row g-2 align-items-center">
+            <div class="col-md-9">
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control" placeholder="Search by Vendor ID, Company Name, Email, or Category..." value="{{ search_q }}">
+                </div>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-neepco flex-grow-1">
+                    <i class="bi bi-search"></i> Search
+                </button>
+                {% if search_q %}
+                    <a href="{{ url_for('vendor_list') }}" class="btn btn-outline-secondary" title="Clear Search">
+                        <i class="bi bi-x-circle"></i> Reset
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Vendor Registry Table -->
+<div class="card-enterprise">
+    <div class="card-header">
+        <div class="d-flex align-items-center gap-2">
+            <h5 class="card-title"><i class="bi bi-building"></i> Registered Vendors</h5>
+            <span class="badge bg-secondary">{{ vendors | length }} Onboarded</span>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-portal mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Vendor ID</th>
+                    <th>Vendor Name</th>
+                    <th>Email Address</th>
+                    <th>Phone / Contact</th>
+                    <th>Enterprise Category</th>
+                    <th class="text-center">MSE Status</th>
+                    <th class="text-center">Procurements</th>
+                    <th class="text-center">Payments</th>
+                    <th class="text-center" style="width: 100px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in vendors %}
+                <tr>
+                    <td>
+                        <strong class="text-primary font-monospace">{{ v.vendor_id }}</strong>
+                    </td>
+                    <td>
+                        <div class="fw-bold text-dark">{{ v.vendor_name }}</div>
+                    </td>
+                    <td>
+                        {% if v.email %}
+                            <a href="mailto:{{ v.email }}" class="text-decoration-none text-muted small">
+                                <i class="bi bi-envelope me-1"></i>{{ v.email }}
+                            </a>
+                        {% else %}
+                            <span class="text-muted small">&mdash;</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if v.phone %}
+                            <span class="small text-muted"><i class="bi bi-telephone me-1"></i>{{ v.phone }}</span>
+                        {% else %}
+                            <span class="text-muted small">&mdash;</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark border">{{ v.vendor_category }}</span>
+                    </td>
+                    <td class="text-center">
+                        {% if v.mse_status == 'Yes' %}
+                            <span class="badge badge-status badge-mse-yes">
+                                <i class="bi bi-check-circle-fill"></i> Yes (MSE)
+                            </span>
+                        {% else %}
+                            <span class="badge badge-status badge-mse-no">
+                                <i class="bi bi-dash-circle"></i> No
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <span class="badge bg-light text-primary border fw-semibold">{{ v.proc_count }}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge bg-light text-success border fw-semibold">{{ v.pay_count }}</span>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-1">
+                            <a href="{{ url_for('vendor_edit', id=v.id) }}" class="btn btn-action-icon" title="Edit Vendor">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('vendor_delete', id=v.id) }}" onsubmit="return confirm('Are you sure you want to delete vendor {{ v.vendor_name }}?');" class="d-inline">
+                                <button type="submit" class="btn btn-action-icon btn-action-delete" title="Delete Vendor">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="9" class="text-center py-4 text-muted">
+                        <i class="bi bi-people fs-2 d-block mb-2 text-secondary"></i>
+                        No vendor records found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

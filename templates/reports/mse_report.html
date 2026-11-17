@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}MSE Procurement Report | NEEPCO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="bi bi-award text-success"></i> MSE Procurement Report
+        </h2>
+        <p class="page-subtitle">Statutory report on Micro and Small Enterprises procurement & target compliance</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('report_mse_csv', fy=fy, from_date=from_date, to_date=to_date) }}" class="btn btn-outline-success">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+        </a>
+        <a href="{{ url_for('reports_index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> All Reports
+        </a>
+    </div>
+</div>
+
+<!-- Compliance Metric Card Bar -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="kpi-card success">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">Total MSE Procurement</h6>
+                    <div class="kpi-value text-success">{{ total_mse | inr }}</div>
+                </div>
+                <div class="kpi-icon success"><i class="bi bi-award-fill"></i></div>
+            </div>
+            <p class="kpi-sub">Filtered MSE procurement total</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card primary">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">Total Overall Procurement</h6>
+                    <div class="kpi-value text-primary">{{ total_overall | inr }}</div>
+                </div>
+                <div class="kpi-icon primary"><i class="bi bi-calculator"></i></div>
+            </div>
+            <p class="kpi-sub">Total procurement spend</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="kpi-card {% if mse_pct >= 25 %}success{% else %}warning{% endif %}">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">MSE Compliance %</h6>
+                    <div class="kpi-value {% if mse_pct >= 25 %}text-success{% else %}text-warning{% endif %}">{{ mse_pct }}%</div>
+                </div>
+                <div class="kpi-icon {% if mse_pct >= 25 %}success{% else %}warning{% endif %}"><i class="bi bi-percent"></i></div>
+            </div>
+            <p class="kpi-sub">Mandatory Target: 25% under Govt Guidelines</p>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card-enterprise mb-4">
+    <div class="card-body py-3">
+        <form method="GET" action="{{ url_for('report_mse') }}" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">Financial Year</label>
+                <select name="fy" class="form-select form-select-sm">
+                    <option value="">-- All Financial Years --</option>
+                    {% for f in fys %}
+                        <option value="{{ f }}" {% if fy == f %}selected{% endif %}>FY {{ f }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">From Date</label>
+                <input type="date" name="from_date" class="form-control form-control-sm" value="{{ from_date }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-secondary mb-1">To Date</label>
+                <input type="date" name="to_date" class="form-control form-control-sm" value="{{ to_date }}">
+            </div>
+            <div class="col-md-3 d-flex align-items-end gap-2 pt-3">
+                <button type="submit" class="btn btn-neepco btn-sm flex-grow-1">
+                    <i class="bi bi-funnel"></i> Apply Filter
+                </button>
+                {% if fy or from_date or to_date %}
+                    <a href="{{ url_for('report_mse') }}" class="btn btn-outline-secondary btn-sm" title="Reset">
+                        <i class="bi bi-x-circle"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Report Table -->
+<div class="card-enterprise">
+    <div class="card-header">
+        <h5 class="card-title"><i class="bi bi-table"></i> MSE Procurement Compliance Records</h5>
+        <div class="fw-bold text-success">
+            Total MSE Value: {{ total_mse | inr }}
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-portal mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Record ID</th>
+                    <th>Vendor Name</th>
+                    <th>Vendor Code</th>
+                    <th>Category</th>
+                    <th>Udyam Registration Number</th>
+                    <th>Date</th>
+                    <th>Financial Year</th>
+                    <th class="text-end">Amount (INR)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                <tr>
+                    <td><code>#MSE-{{ r.id }}</code></td>
+                    <td class="fw-semibold text-dark">{{ r.vendor_name }}</td>
+                    <td><code>{{ r.ven_code }}</code></td>
+                    <td><span class="badge bg-light text-dark border">{{ r.vendor_category }}</span></td>
+                    <td><span class="badge bg-primary-subtle text-primary font-monospace">{{ r.udyam_registration_number }}</span></td>
+                    <td class="text-nowrap">{{ r.date }}</td>
+                    <td><span class="badge bg-light text-dark border">{{ r.financial_year }}</span></td>
+                    <td class="text-end fw-bold text-success">{{ r.procurement_amount | inr }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">No MSE procurement records found for the selected criteria.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% if records %}
+            <tfoot>
+                <tr>
+                    <td colspan="7" class="text-end fw-bold">TOTAL MSE PROCUREMENT:</td>
+                    <td class="text-end fw-bold text-success fs-6">{{ total_mse | inr }}</td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

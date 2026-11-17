@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Reports & Audit Analytics | NEEPCO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="bi bi-file-earmark-bar-graph text-primary"></i> Reports & Audit Center
+        </h2>
+        <p class="page-subtitle">Generate, filter, and export official statutory and compliance procurement reports</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Report 1: Total Procurement Report -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card-enterprise h-100 d-flex flex-column">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title text-white">
+                    <i class="bi bi-box-seam"></i> Total Procurement
+                </h5>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <p class="text-muted small">
+                        Comprehensive audit breakdown of all purchase orders, works, services, and consultancy contracts categorized by financial year.
+                    </p>
+                    <ul class="list-unstyled small text-muted">
+                        <li><i class="bi bi-check2 text-primary me-1"></i> Filter by FY & Dates</li>
+                        <li><i class="bi bi-check2 text-primary me-1"></i> PO summary & Totals</li>
+                        <li><i class="bi bi-check2 text-primary me-1"></i> Instant CSV download</li>
+                    </ul>
+                </div>
+                <div class="d-grid gap-2 mt-3">
+                    <a href="{{ url_for('report_procurement') }}" class="btn btn-neepco btn-sm">
+                        <i class="bi bi-eye"></i> View Report
+                    </a>
+                    <a href="{{ url_for('report_procurement_csv') }}" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report 2: MSE Procurement Report -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card-enterprise h-100 d-flex flex-column">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title text-white">
+                    <i class="bi bi-award"></i> MSE Procurement
+                </h5>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <p class="text-muted small">
+                        Public Procurement Policy compliance tracking for Micro and Small Enterprises with verified Udyam registration credentials and percentage calculation.
+                    </p>
+                    <ul class="list-unstyled small text-muted">
+                        <li><i class="bi bi-check2 text-success me-1"></i> Udyam Registration audit</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Policy 25% target check</li>
+                        <li><i class="bi bi-check2 text-success me-1"></i> Instant CSV download</li>
+                    </ul>
+                </div>
+                <div class="d-grid gap-2 mt-3">
+                    <a href="{{ url_for('report_mse') }}" class="btn btn-neepco btn-sm">
+                        <i class="bi bi-eye"></i> View Report
+                    </a>
+                    <a href="{{ url_for('report_mse_csv') }}" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report 3: GeM Procurement Report -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card-enterprise h-100 d-flex flex-column">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title text-white">
+                    <i class="bi bi-cart-check"></i> GeM Procurement
+                </h5>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <p class="text-muted small">
+                        Statutory audit record of all goods, products, and services procured via the Government e-Marketplace (GeM) national portal.
+                    </p>
+                    <ul class="list-unstyled small text-muted">
+                        <li><i class="bi bi-check2 text-info me-1"></i> Filter by Order Status</li>
+                        <li><i class="bi bi-check2 text-info me-1"></i> Order date ranges</li>
+                        <li><i class="bi bi-check2 text-info me-1"></i> Instant CSV download</li>
+                    </ul>
+                </div>
+                <div class="d-grid gap-2 mt-3">
+                    <a href="{{ url_for('report_gem') }}" class="btn btn-neepco btn-sm">
+                        <i class="bi bi-eye"></i> View Report
+                    </a>
+                    <a href="{{ url_for('report_gem_csv') }}" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report 4: Vendor Payment Report -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card-enterprise h-100 d-flex flex-column">
+            <div class="card-header bg-dark text-white">
+                <h5 class="card-title text-white">
+                    <i class="bi bi-credit-card"></i> Vendor Payments
+                </h5>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <p class="text-muted small">
+                        Accounts settlement report displaying invoice status, disbursements released, and outstanding vendor liabilities.
+                    </p>
+                    <ul class="list-unstyled small text-muted">
+                        <li><i class="bi bi-check2 text-dark me-1"></i> Filter by Payment Status</li>
+                        <li><i class="bi bi-check2 text-dark me-1"></i> Auto-calculated outstanding</li>
+                        <li><i class="bi bi-check2 text-dark me-1"></i> Instant CSV download</li>
+                    </ul>
+                </div>
+                <div class="d-grid gap-2 mt-3">
+                    <a href="{{ url_for('report_payments') }}" class="btn btn-neepco btn-sm">
+                        <i class="bi bi-eye"></i> View Report
+                    </a>
+                    <a href="{{ url_for('report_payments_csv') }}" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}MSE Procurement Module | NEEPCO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="bi bi-award text-success"></i> Micro & Small Enterprises (MSE) Procurement
+        </h2>
+        <p class="page-subtitle">Track Public Procurement Policy compliance for Micro & Small Enterprises</p>
+    </div>
+    <div>
+        <a href="{{ url_for('mse_add') }}" class="btn btn-neepco shadow-sm">
+            <i class="bi bi-plus-circle"></i> Add MSE Procurement
+        </a>
+    </div>
+</div>
+
+<!-- Compliance Metric Cards & Formula Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="kpi-card success">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">Total MSE Procurement</h6>
+                    <div class="kpi-value text-success">{{ total_mse_procurement | inr }}</div>
+                </div>
+                <div class="kpi-icon success">
+                    <i class="bi bi-patch-check-fill"></i>
+                </div>
+            </div>
+            <p class="kpi-sub">Procured from verified Udyam enterprises</p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="kpi-card primary">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">Total Overall Procurement</h6>
+                    <div class="kpi-value text-primary">{{ total_overall | inr }}</div>
+                </div>
+                <div class="kpi-icon primary">
+                    <i class="bi bi-calculator"></i>
+                </div>
+            </div>
+            <p class="kpi-sub">Total procurement denominator</p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="kpi-card {% if mse_percentage >= 25 %}success{% else %}warning{% endif %}">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">MSE Achievement Percentage</h6>
+                    <div class="kpi-value {% if mse_percentage >= 25 %}text-success{% else %}text-warning{% endif %}">
+                        {{ mse_percentage }}%
+                    </div>
+                </div>
+                <div class="kpi-icon {% if mse_percentage >= 25 %}success{% else %}warning{% endif %}">
+                    <i class="bi bi-percent"></i>
+                </div>
+            </div>
+            <div class="progress mt-2" style="height: 6px;">
+                <div class="progress-bar {% if mse_percentage >= 25 %}bg-success{% else %}bg-warning{% endif %}" role="progressbar" style="width: {{ [mse_percentage, 100] | min }}%;"></div>
+            </div>
+            <p class="kpi-sub mt-2 mb-0">
+                Formula: ({{ total_mse_procurement | number_only }} / {{ total_overall | number_only }}) &times; 100
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Search & Filter Form -->
+<div class="card-enterprise mb-4">
+    <div class="card-body py-3">
+        <form method="GET" action="{{ url_for('mse_list') }}" class="row g-2 align-items-center">
+            <div class="col-md-6">
+                <select name="fy" class="form-select">
+                    <option value="">-- All Financial Years --</option>
+                    {% for fy in fys %}
+                        <option value="{{ fy }}" {% if selected_fy == fy %}selected{% endif %}>FY {{ fy }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6 d-flex gap-2">
+                <button type="submit" class="btn btn-neepco flex-grow-1">
+                    <i class="bi bi-funnel"></i> Filter Records
+                </button>
+                {% if selected_fy %}
+                    <a href="{{ url_for('mse_list') }}" class="btn btn-outline-secondary" title="Clear Filter">
+                        <i class="bi bi-x-circle"></i> Reset
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('report_mse_csv', fy=selected_fy) }}" class="btn btn-outline-success" title="Export as CSV">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> CSV
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MSE Records Table -->
+<div class="card-enterprise">
+    <div class="card-header">
+        <div class="d-flex align-items-center gap-2">
+            <h5 class="card-title"><i class="bi bi-table"></i> MSE Procurement Records</h5>
+            <span class="badge bg-success-subtle text-success">{{ records | length }} Entries</span>
+        </div>
+        <div class="fw-bold text-success">
+            Total MSE Value: {{ total_mse_procurement | inr }}
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-portal mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>Record ID</th>
+                    <th>Vendor Name</th>
+                    <th>Vendor Category</th>
+                    <th>Udyam Registration Number</th>
+                    <th>Date</th>
+                    <th>Financial Year</th>
+                    <th class="text-end">Procurement Amount (INR)</th>
+                    <th class="text-center" style="width: 80px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                <tr>
+                    <td><code>#MSE-{{ r.id }}</code></td>
+                    <td>
+                        <div class="fw-semibold text-dark">{{ r.vendor_name }}</div>
+                        <small class="text-muted">{{ r.ven_code }}</small>
+                    </td>
+                    <td><span class="badge bg-light text-dark border">{{ r.vendor_category }}</span></td>
+                    <td>
+                        <span class="badge bg-primary-subtle text-primary font-monospace">{{ r.udyam_registration_number }}</span>
+                    </td>
+                    <td class="text-nowrap">{{ r.date }}</td>
+                    <td><span class="badge bg-light text-dark border">{{ r.financial_year }}</span></td>
+                    <td class="text-end fw-bold text-success">{{ r.procurement_amount | inr }}</td>
+                    <td class="text-center">
+                        <form method="POST" action="{{ url_for('mse_delete', id=r.id) }}" onsubmit="return confirm('Are you sure you want to remove this MSE record?');" class="d-inline">
+                            <button type="submit" class="btn btn-action-icon btn-action-delete" title="Delete Record">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">
+                        <i class="bi bi-award fs-2 d-block mb-2 text-secondary"></i>
+                        No MSE procurement records found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% if records %}
+            <tfoot>
+                <tr>
+                    <td colspan="6" class="text-end fw-bold">TOTAL MSE PROCUREMENT:</td>
+                    <td class="text-end fw-bold text-success fs-6">{{ total_mse_procurement | inr }}</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

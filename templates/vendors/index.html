@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Vendor Management - NEEPCO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="bi bi-buildings text-primary"></i> Vendor Management Module
+        </h2>
+        <p class="page-subtitle">Directory of registered suppliers, contractors, service providers & MSE partners</p>
+    </div>
+    <div>
+        <button class="btn btn-psu" data-bs-toggle="modal" data-bs-target="#addVendorModal">
+            <i class="bi bi-plus-circle me-1"></i> Register New Vendor
+        </button>
+    </div>
+</div>
+
+<!-- Search & Statistics Header -->
+<div class="row g-3 mb-3">
+    <div class="col-12 col-md-5">
+        <div class="stat-card py-2 px-3">
+            <div class="stat-content m-0">
+                <span class="stat-label">Total Enlisted Suppliers</span>
+                <h4 class="stat-value text-primary fs-5 mb-0">{{ vendors|length }} Vendors</h4>
+            </div>
+            <span class="badge bg-purple text-white px-2 py-1" style="background-color: #6f42c1;">
+                {{ mse_count }} MSE Qualified
+            </span>
+        </div>
+    </div>
+    <div class="col-12 col-md-7">
+        <div class="filter-bar h-100 py-2 d-flex align-items-center">
+            <div class="input-group">
+                <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                <input type="text" id="tableSearchInput" class="form-control" placeholder="Quick search by Vendor ID, Name, Category, or MSE Status...">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vendors Table -->
+<div class="custom-card">
+    <div class="custom-card-header">
+        <div class="card-header-title">
+            <i class="bi bi-people-fill text-primary"></i> Registered Vendor Directory
+        </div>
+        <span class="badge bg-light text-secondary border">Active Enlistment</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-custom table-searchable align-middle">
+            <thead>
+                <tr>
+                    <th>Vendor ID</th>
+                    <th>Vendor / Firm Name</th>
+                    <th>Contact Information</th>
+                    <th>Category</th>
+                    <th>MSE Classification</th>
+                    <th>Registered On</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in vendors %}
+                <tr>
+                    <td>
+                        <span class="badge bg-primary-subtle text-primary border font-monospace">
+                            {{ v['vendor_id'] }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="fw-bold text-dark">{{ v['vendor_name'] }}</div>
+                    </td>
+                    <td>
+                        <div class="small"><i class="bi bi-envelope text-muted me-1"></i> {{ v['email'] }}</div>
+                        <div class="small text-muted"><i class="bi bi-telephone text-muted me-1"></i> {{ v['phone'] }}</div>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark border">{{ v['vendor_category'] }}</span>
+                    </td>
+                    <td>
+                        {% if 'Micro' in v['mse_status'] or 'Small' in v['mse_status'] or 'Medium' in v['mse_status'] %}
+                        <span class="badge badge-status badge-mse">
+                            <i class="bi bi-check-circle-fill me-1"></i> {{ v['mse_status'] }}
+                        </span>
+                        {% else %}
+                        <span class="badge bg-secondary-subtle text-secondary border">
+                            {{ v['mse_status'] }}
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td><small class="text-muted">{{ v['created_at'][:10] if v['created_at'] else 'N/A' }}</small></td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-outline-primary me-1" 
+                                onclick="openEditVendorModal('{{ v['id'] }}', '{{ v['vendor_id'] }}', '{{ v['vendor_name']|escape }}', '{{ v['email']|escape }}', '{{ v['phone']|escape }}', '{{ v['vendor_category'] }}', '{{ v['mse_status'] }}')"
+                                title="Edit Vendor">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <form method="POST" action="{{ url_for('vendor_delete', id=v['id']) }}" onsubmit="return confirmDelete('Are you sure you want to delete vendor {{ v['vendor_name'] }}? Associated records will also be affected.');" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Vendor">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">No vendors registered yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal: Add Vendor -->
+<div class="modal fade" id="addVendorModal" tabindex="-1" aria-labelledby="addVendorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addVendorModalLabel">
+                    <i class="bi bi-building-add me-2"></i> Register New Vendor
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('vendor_add') }}">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Vendor ID <span class="text-danger">*</span></label>
+                            <input type="text" name="vendor_id" class="form-control" placeholder="e.g. VEND-1006" value="{{ auto_vendor_id }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Vendor / Company Legal Name <span class="text-danger">*</span></label>
+                            <input type="text" name="vendor_name" class="form-control" placeholder="e.g. Guwahati Electricals Pvt Ltd" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Official Email <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" placeholder="vendor@example.com" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contact Phone Number <span class="text-danger">*</span></label>
+                            <input type="text" name="phone" class="form-control" placeholder="+91 9876543210" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Vendor Category <span class="text-danger">*</span></label>
+                            <select name="vendor_category" class="form-select" required>
+                                <option value="Goods">Goods / Equipment Supplier</option>
+                                <option value="Services">Services / AMC Provider</option>
+                                <option value="Works">Civil & Structural Works</option>
+                                <option value="Consultancy">Consultancy & Engineering</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">MSE Status <span class="text-danger">*</span></label>
+                            <select name="mse_status" class="form-select" required>
+                                <option value="MSE-Micro">MSE - Micro Enterprise</option>
+                                <option value="MSE-Small">MSE - Small Enterprise</option>
+                                <option value="MSE-Medium">MSE - Medium Enterprise</option>
+                                <option value="Non-MSE" selected>Non-MSE / Large Enterprise</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-psu">Save Vendor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Edit Vendor -->
+<div class="modal fade" id="editVendorModal" tabindex="-1" aria-labelledby="editVendorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editVendorModalLabel">
+                    <i class="bi bi-pencil-square me-2"></i> Edit Vendor Information
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" id="editVendorForm" action="">
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Vendor ID</label>
+                            <input type="text" id="edit_vendor_id" name="vendor_id" class="form-control bg-light" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Vendor / Company Legal Name <span class="text-danger">*</span></label>
+                            <input type="text" id="edit_vendor_name" name="vendor_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Official Email <span class="text-danger">*</span></label>
+                            <input type="email" id="edit_email" name="email" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Contact Phone Number <span class="text-danger">*</span></label>
+                            <input type="text" id="edit_phone" name="phone" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Vendor Category <span class="text-danger">*</span></label>
+                            <select id="edit_vendor_category" name="vendor_category" class="form-select" required>
+                                <option value="Goods">Goods / Equipment Supplier</option>
+                                <option value="Services">Services / AMC Provider</option>
+                                <option value="Works">Civil & Structural Works</option>
+                                <option value="Consultancy">Consultancy & Engineering</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">MSE Status <span class="text-danger">*</span></label>
+                            <select id="edit_mse_status" name="mse_status" class="form-select" required>
+                                <option value="MSE-Micro">MSE - Micro Enterprise</option>
+                                <option value="MSE-Small">MSE - Small Enterprise</option>
+                                <option value="MSE-Medium">MSE - Medium Enterprise</option>
+                                <option value="Non-MSE">Non-MSE / Large Enterprise</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Vendor Information</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function openEditVendorModal(id, vendorId, name, email, phone, category, mseStatus) {
+        document.getElementById('editVendorForm').action = "/vendors/edit/" + id;
+        document.getElementById('edit_vendor_id').value = vendorId;
+        document.getElementById('edit_vendor_name').value = name;
+        document.getElementById('edit_email').value = email;
+        document.getElementById('edit_phone').value = phone;
+        document.getElementById('edit_vendor_category').value = category;
+        document.getElementById('edit_mse_status').value = mseStatus;
+
+        var myModal = new bootstrap.Modal(document.getElementById('editVendorModal'));
+        myModal.show();
+    }
+</script>
+{% endblock %}

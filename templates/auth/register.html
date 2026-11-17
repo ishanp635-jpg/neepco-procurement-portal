@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Register User - NEEPCO Portal{% endblock %}
+
+{% block auth_content %}
+<div class="auth-wrapper">
+    <div class="auth-card" style="max-width: 520px;">
+        <div class="auth-header">
+            <div class="auth-logo">N</div>
+            <h4 class="fw-bold mb-1" style="color: var(--primary-navy);">User Registration</h4>
+            <p class="text-muted small mb-0">Create an Official NEEPCO Portal Account</p>
+        </div>
+        
+        <div class="auth-body">
+            <form action="{{ url_for('register') }}" method="POST">
+                <div class="mb-3">
+                    <label for="full_name" class="form-label fw-semibold small text-secondary">Full Name</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-person-badge"></i></span>
+                        <input type="text" class="form-control border-start-0" id="full_name" name="full_name" 
+                               value="{{ full_name or '' }}" placeholder="e.g. Ramesh Chandra Barman" required autofocus>
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <label for="email" class="form-label fw-semibold small text-secondary">Official Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
+                            <input type="email" class="form-control border-start-0" id="email" name="email" 
+                                   value="{{ email or '' }}" placeholder="user@neepco.gov.in" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="username" class="form-label fw-semibold small text-secondary">Desired Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-at"></i></span>
+                            <input type="text" class="form-control border-start-0" id="username" name="username" 
+                                   value="{{ username or '' }}" placeholder="e.g. ramesh_b" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-md-6">
+                        <label for="password" class="form-label fw-semibold small text-secondary">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-key"></i></span>
+                            <input type="password" class="form-control border-start-0" id="password" name="password" 
+                                   placeholder="Min 6 characters" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="confirm_password" class="form-label fw-semibold small text-secondary">Confirm Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-shield-check"></i></span>
+                            <input type="password" class="form-control border-start-0" id="confirm_password" name="confirm_password" 
+                                   placeholder="Re-type password" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid mb-3 mt-4">
+                    <button type="submit" class="btn btn-navy py-2 fw-semibold">
+                        <i class="bi bi-person-check me-1"></i> Complete Sign Up
+                    </button>
+                </div>
+
+                <div class="text-center pt-2 border-top">
+                    <span class="small text-muted">Already registered? </span>
+                    <a href="{{ url_for('login') }}" class="small fw-semibold text-decoration-none" style="color: var(--secondary-blue);">
+                        Sign In to Your Account
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

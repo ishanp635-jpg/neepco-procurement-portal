@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}GeM Procurement Module | NEEPCO{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="bi bi-cart-check text-info"></i> Government e-Marketplace (GeM) Procurement
+        </h2>
+        <p class="page-subtitle">Track orders, contracts, and deliveries conducted via the GeM Portal</p>
+    </div>
+    <div>
+        <a href="{{ url_for('gem_add') }}" class="btn btn-neepco shadow-sm">
+            <i class="bi bi-plus-circle"></i> Add GeM Order
+        </a>
+    </div>
+</div>
+
+<!-- Search & Status Filter -->
+<div class="card-enterprise mb-4">
+    <div class="card-body py-3">
+        <form method="GET" action="{{ url_for('gem_list') }}" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control" placeholder="Search GeM Order ID, Product, or Vendor..." value="{{ search_q }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">-- All Order Statuses --</option>
+                    <option value="Placed" {% if status_filter == 'Placed' %}selected{% endif %}>Placed</option>
+                    <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Delivered" {% if status_filter == 'Delivered' %}selected{% endif %}>Delivered</option>
+                    <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+                    <option value="Cancelled" {% if status_filter == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-neepco flex-grow-1">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
+                {% if search_q or status_filter %}
+                    <a href="{{ url_for('gem_list') }}" class="btn btn-outline-secondary" title="Clear Filters">
+                        <i class="bi bi-x-circle"></i> Reset
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('report_gem_csv', status=status_filter) }}" class="btn btn-outline-success" title="Export as CSV">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> CSV
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- GeM Records Table -->
+<div class="card-enterprise">
+    <div class="card-header">
+        <div class="d-flex align-items-center gap-2">
+            <h5 class="card-title"><i class="bi bi-table"></i> GeM Orders Registry</h5>
+            <span class="badge bg-info-subtle text-info">{{ records | length }} Orders</span>
+        </div>
+        <div class="fw-bold text-info">
+            Total GeM Procurement: {{ total_gem_procurement | inr }}
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-portal mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th>GeM Order ID</th>
+                    <th>Vendor Name</th>
+                    <th>Product / Item Description</th>
+                    <th>Order Date</th>
+                    <th>Current Status</th>
+                    <th class="text-end">Order Amount (INR)</th>
+                    <th class="text-center" style="width: 130px;">Update Status / Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                <tr>
+                    <td>
+                        <strong class="text-primary font-monospace">{{ r.gem_order_id }}</strong>
+                    </td>
+                    <td>
+                        <div class="fw-semibold text-dark">{{ r.vendor_name }}</div>
+                        <small class="text-muted">{{ r.ven_code }}</small>
+                    </td>
+                    <td style="max-width: 250px;">
+                        <span class="text-truncate d-block" title="{{ r.product_description }}">{{ r.product_description }}</span>
+                    </td>
+                    <td class="text-nowrap">{{ r.order_date }}</td>
+                    <td>
+                        {% if r.order_status == 'Completed' %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-check-all"></i> Completed</span>
+                        {% elif r.order_status == 'Delivered' %}
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle"><i class="bi bi-truck"></i> Delivered</span>
+                        {% elif r.order_status == 'In Progress' %}
+                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle"><i class="bi bi-gear-wide-connected"></i> In Progress</span>
+                        {% elif r.order_status == 'Placed' %}
+                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle"><i class="bi bi-receipt"></i> Placed</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-x-circle"></i> {{ r.order_status }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end fw-bold">{{ r.order_amount | inr }}</td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center align-items-center gap-1">
+                            <!-- Quick Status Update Dropdown Form -->
+                            <form method="POST" action="{{ url_for('gem_update_status', id=r.id) }}" class="d-inline">
+                                <select name="order_status" class="form-select form-select-sm" style="font-size: 0.75rem; width: 110px;" onchange="this.form.submit()" title="Change Status">
+                                    <option value="Placed" {% if r.order_status == 'Placed' %}selected{% endif %}>Placed</option>
+                                    <option value="In Progress" {% if r.order_status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                    <option value="Delivered" {% if r.order_status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                                    <option value="Completed" {% if r.order_status == 'Completed' %}selected{% endif %}>Completed</option>
+                                    <option value="Cancelled" {% if r.order_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                            </form>
+                            <!-- Delete Button -->
+                            <form method="POST" action="{{ url_for('gem_delete', id=r.id) }}" onsubmit="return confirm('Delete this GeM order {{ r.gem_order_id }}?');" class="d-inline">
+                                <button type="submit" class="btn btn-action-icon btn-action-delete" title="Delete Order">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">
+                        <i class="bi bi-cart-x fs-2 d-block mb-2 text-secondary"></i>
+                        No GeM procurement records found matching your query.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% if records %}
+            <tfoot>
+                <tr>
+                    <td colspan="5" class="text-end fw-bold">TOTAL GeM ORDERS VALUE:</td>
+                    <td class="text-end fw-bold text-info fs-6">{{ total_gem_procurement | inr }}</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+            {% endif %}
+        </table>
+    </div>
+</div>
+{% endblock %}

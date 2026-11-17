@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | NEEPCO Procurement & Payment Portal{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="bi bi-speedometer2 text-primary"></i> Executive Dashboard
+        </h2>
+        <p class="page-subtitle">Real-time procurement metrics, MSE participation, GeM orders, and vendor payments</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('procurement_add') }}" class="btn btn-neepco shadow-sm">
+            <i class="bi bi-plus-circle"></i> Add Procurement
+        </a>
+        <a href="{{ url_for('payment_add') }}" class="btn btn-neepco-outline shadow-sm">
+            <i class="bi bi-credit-card-2-front"></i> Record Payment
+        </a>
+    </div>
+</div>
+
+<!-- Dynamic KPI Statistics Row (6 Cards) -->
+<div class="row g-3 mb-4">
+    <!-- 1. Total Procurement Value -->
+    <div class="col-sm-6 col-xl-4">
+        <div class="kpi-card primary">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">Total Procurement Value</h6>
+                    <div class="kpi-value">{{ total_procurement | inr }}</div>
+                </div>
+                <div class="kpi-icon primary">
+                    <i class="bi bi-currency-rupee"></i>
+                </div>
+            </div>
+            <p class="kpi-sub"><i class="bi bi-check2-circle text-primary"></i> Across all active PO contracts</p>
+        </div>
+    </div>
+
+    <!-- 2. Total MSE Procurement -->
+    <div class="col-sm-6 col-xl-4">
+        <div class="kpi-card success">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">Total MSE Procurement</h6>
+                    <div class="kpi-value text-success">{{ total_mse | inr }}</div>
+                </div>
+                <div class="kpi-icon success">
+                    <i class="bi bi-award-fill"></i>
+                </div>
+            </div>
+            <p class="kpi-sub">
+                <span class="badge bg-success-subtle text-success fw-bold">{{ mse_percentage }}%</span> of total procurement
+            </p>
+        </div>
+    </div>
+
+    <!-- 3. Total GeM Procurement -->
+    <div class="col-sm-6 col-xl-4">
+        <div class="kpi-card info">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">Total GeM Procurement</h6>
+                    <div class="kpi-value text-info">{{ total_gem | inr }}</div>
+                </div>
+                <div class="kpi-icon info">
+                    <i class="bi bi-cart-check-fill"></i>
+                </div>
+            </div>
+            <p class="kpi-sub"><i class="bi bi-shop text-info"></i> Government e-Marketplace orders</p>
+        </div>
+    </div>
+
+    <!-- 4. Total Vendors -->
+    <div class="col-sm-6 col-xl-4">
+        <div class="kpi-card dark">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">Registered Vendors</h6>
+                    <div class="kpi-value">{{ total_vendors }}</div>
+                </div>
+                <div class="kpi-icon dark">
+                    <i class="bi bi-building"></i>
+                </div>
+            </div>
+            <p class="kpi-sub"><i class="bi bi-people text-secondary"></i> Onboarded MSE & Non-MSE partners</p>
+        </div>
+    </div>
+
+    <!-- 5. Total Payments Disbursed -->
+    <div class="col-sm-6 col-xl-4">
+        <div class="kpi-card warning">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">Total Payments Disbursed</h6>
+                    <div class="kpi-value text-primary">{{ total_payments_paid | inr }}</div>
+                </div>
+                <div class="kpi-icon warning">
+                    <i class="bi bi-wallet2"></i>
+                </div>
+            </div>
+            <p class="kpi-sub"><i class="bi bi-cash-stack text-warning"></i> Total invoice: {{ total_invoiced | inr }}</p>
+        </div>
+    </div>
+
+    <!-- 6. Pending Payments -->
+    <div class="col-sm-6 col-xl-4">
+        <div class="kpi-card danger">
+            <div class="kpi-header">
+                <div>
+                    <h6 class="kpi-title">Pending Payments</h6>
+                    <div class="kpi-value text-danger">{{ pending_payments_val | inr }}</div>
+                </div>
+                <div class="kpi-icon danger">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+            </div>
+            <p class="kpi-sub"><i class="bi bi-exclamation-circle text-danger"></i> Outstanding liabilities to settle</p>
+        </div>
+    </div>
+</div>
+
+<!-- Dynamic Charts Row (4 Charts) -->
+<div class="row g-3 mb-4">
+    <!-- Chart 1: Procurement Overview by Type -->
+    <div class="col-lg-6">
+        <div class="card-enterprise">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="bi bi-bar-chart-fill text-primary"></i> Procurement Overview (By Category)
+                </h5>
+                <span class="badge bg-light text-muted border">Dynamic SQLite Data</span>
+            </div>
+            <div class="card-body">
+                <div style="height: 280px; position: relative;">
+                    <canvas id="chartProcurementType"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 2: MSE vs Non-MSE Procurement -->
+    <div class="col-lg-6">
+        <div class="card-enterprise">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="bi bi-pie-chart-fill text-success"></i> MSE vs Non-MSE Procurement Share
+                </h5>
+                <span class="badge bg-success-subtle text-success">Target: &ge; 25%</span>
+            </div>
+            <div class="card-body">
+                <div style="height: 280px; position: relative;">
+                    <canvas id="chartMseShare"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 3: GeM Procurement Overview -->
+    <div class="col-lg-6">
+        <div class="card-enterprise">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="bi bi-bag-check-fill text-info"></i> GeM Procurement Status Overview
+                </h5>
+                <span class="badge bg-info-subtle text-info">GeM Portal Orders</span>
+            </div>
+            <div class="card-body">
+                <div style="height: 280px; position: relative;">
+                    <canvas id="chartGemStatus"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart 4: Paid vs Pending Payments -->
+    <div class="col-lg-6">
+        <div class="card-enterprise">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="bi bi-credit-card-fill text-danger"></i> Paid vs Pending Payments
+                </h5>
+                <span class="badge bg-danger-subtle text-danger">Payment Settlement</span>
+            </div>
+            <div class="card-body">
+                <div style="height: 280px; position: relative;">
+                    <canvas id="chartPaymentStatus"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Records Quick View -->
+<div class="row g-3">
+    <!-- Recent Procurements Table -->
+    <div class="col-lg-6">
+        <div class="card-enterprise">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="bi bi-clock-history text-primary"></i> Recent Procurements
+                </h5>
+                <a href="{{ url_for('procurement_list') }}" class="btn btn-sm btn-outline-secondary">
+                    View All <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-portal mb-0">
+                    <thead>
+                        <tr>
+                            <th>Proc ID</th>
+                            <th>Vendor</th>
+                            <th>Amount</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in recent_procurements %}
+                        <tr>
+                            <td><strong class="text-primary">{{ r.procurement_id }}</strong></td>
+                            <td class="text-truncate" style="max-width: 160px;" title="{{ r.vendor_name }}">{{ r.vendor_name }}</td>
+                            <td><strong>{{ r.procurement_amount | inr }}</strong></td>
+                            <td>
+                                <span class="badge badge-status badge-type-{{ r.procurement_type | lower }}">
+                                    {{ r.procurement_type }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">No procurement records found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Payments Table -->
+    <div class="col-lg-6">
+        <div class="card-enterprise">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="bi bi-receipt text-success"></i> Recent Vendor Payments
+                </h5>
+                <a href="{{ url_for('payment_list') }}" class="btn btn-sm btn-outline-secondary">
+                    View All <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-portal mb-0">
+                    <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Vendor</th>
+                            <th>Paid Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in recent_payments %}
+                        <tr>
+                            <td><strong>{{ p.invoice_number }}</strong></td>
+                            <td class="text-truncate" style="max-width: 160px;" title="{{ p.vendor_name }}">{{ p.vendor_name }}</td>
+                            <td><strong>{{ p.amount_paid | inr }}</strong></td>
+                            <td>
+                                {% if p.payment_status == 'Paid' %}
+                                    <span class="badge badge-status badge-paid"><i class="bi bi-check2"></i> Paid</span>
+                                {% elif p.payment_status == 'Partially Paid' %}
+                                    <span class="badge badge-status badge-partial"><i class="bi bi-clock"></i> Partial</span>
+                                {% else %}
+                                    <span class="badge badge-status badge-pending"><i class="bi bi-hourglass"></i> Pending</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">No payment records found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<!-- Dashboard Specific Chart Initializer -->
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
