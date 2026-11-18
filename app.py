@@ -19,6 +19,10 @@ app.secret_key = os.environ.get('SECRET_KEY', 'neepco_secure_portal_key_2025_aca
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
+# Initialize database on startup (works with both Flask dev server and gunicorn)
+with app.app_context():
+    init_db()
+
 
 # ---------------------------------------------------------
 # Jinja Filters & Context Processors
